@@ -18,11 +18,7 @@
 #   Included Libraries
 #-----------------------------------------------------------------------------------------------------------
 
-import pygst
-pygst.require(“0.10”)
-import gst
-import pygtk
-import gtk
+import cv2
 
 from os import error
 import sys
@@ -178,34 +174,8 @@ class CSI_Camera:
 
 
 class Test:
-    def __init__(self):
-        self.pipeline = gst.Pipeline(“mypipeline”)
+    
 
-        self.cam_src = gst.element_factory_make("nvarguscamerasrc sensor-id=0", "cam_src")
-        self.pipeline.add(self.cam_src)
-
-        self.cam_parm = gst.element_factory_make("'video/x-raw(memory:NVMM),width=1920,height=1080,format=NV12,framerate=30/1'", "cam_parm")
-        self.pipeline.add(self.cam_parm)
-
-        self.enc = gst.element_factory_make("nvv4l2h264enc", "enc")
-        self.pipeline.add(self.enc)
-
-        self.parse = gst.element_factory_make("h264parse", "parse")
-        self.pipeline.add(self.parse)
-
-        self.mux = gst.element_factory_make("mp4mux", "mux")
-        self.pipeline.add(self.cam_src)
-
-        self.file_sink = gst.element_factory_make("filesink location=test.mp4", "file_sink")
-        self.pipeline.add(self.cam_src)
-
-        self.cam_src.link(self.cam_parm)
-        self.cam_parm.link(self.enc)
-        self.enc.link(self.parse)
-        self.parse.link(self.mux)
-        self.mux.link(self.file_sink)
-
-        self.pipeline.set_state(gst.STATE_PLAYING)
 
 
 
@@ -216,16 +186,35 @@ class Test:
 #   Global Function Definitions
 #-----------------------------------------------------------------------------------------------------------
 
+def gstreamer():
+    return ('nvarguscamerasrc sensor-id=0 ! '
+            'video/x-raw(memory:NVMM), '
+            'width=1920, height=1080, '
+            'format=NV12, framerate=60/1 ! '
+            'nvvidconv flip-method=0 ! '
+            'video/x-raw, width=1280, height=720, format=(string)BGRx ! '
+            'videoconvert ! '
+            'video/x-raw, format=(string)BGR ! appsink')
+
 def test():
     """
     Test function. Determines if all the features of this toolset are working as intended.
     """
-    pass
+
+    cap = cv2.VideoCapture(gstreamer(), cv2.CAP_GSTREAMER)
+
+    fourcc = cv2.VideoWriter_fourcc(*"X264")
+    writer = cv2.VideoWriter("out/{}".format(name), fourcc, 30, (1280, 720), True)
+    if cap.isOpened():
+        for i in range(1200):
+            ret_val, img = cap.read()
+            writer.write(img)
+    writer.release()
+    cap.release()
 
 #-----------------------------------------------------------------------------------------------------------
 #   Main Function Definition
 #-----------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    start=Test()
-    gtk.main()
+    test()
