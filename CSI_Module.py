@@ -124,7 +124,7 @@ class CSI_Camera:
         time.sleep(duration)
         self.terminate_Process()
 
-    def continuous_Video_Capture(self, filename, res_width, res_height, framerate, duration):
+    def continuous_Video_Capture(self, filename, res_width, res_height, framerate):
         """
         The same, but requires explicit call to stop recording.
         """
@@ -144,6 +144,9 @@ class CSI_Camera:
         command += "filesink location=%s.mp4 -e" %(filename)
 
         self.start_Process(command)
+
+    def Image_Capture(self):
+        pass
 
 
 
