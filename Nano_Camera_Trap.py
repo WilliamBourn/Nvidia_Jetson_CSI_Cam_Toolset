@@ -248,7 +248,8 @@ class CSI_Module:
         print(pid)
 
         #Terminate process
-        os.killpg(pid, signal.SIGINT)
+
+        kill_pid(pid)
         self.running = False
 
     
@@ -293,6 +294,9 @@ def get_pid(name):
 
     return int(out)
 
+def kill_pid(pid):
+    command = "kill -2 %d" %pid
+    pro = subprocess.Popen(command)
 
 def system_Check():
     pass
