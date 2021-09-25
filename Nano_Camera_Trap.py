@@ -212,7 +212,8 @@ class CSI_Module:
             command = ""
             command += "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id)
             command += "'video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1,format=NV12' ! "
-            command += " nvoverlaysink -e"
+            command += "nvv4l2h264enc ! h264parse ! mp4mux ! "
+            command += "filesink location=test.mp4 -e"
 
             self.running = True
             self.pro = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
