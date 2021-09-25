@@ -109,6 +109,8 @@ class CSI_Camera_Module:
         Terminate the ongoing subprocess
         """
         self.process.send_signal(signal.SIGUSR2)
+        
+        self.process.wait()
 
 
 
@@ -130,6 +132,7 @@ def test():
 
     cam1.terminate_Process()
     #cam2.terminate_Process()
+
 
 #-----------------------------------------------------------------------------------------------------------
 #   Main Function Definition
