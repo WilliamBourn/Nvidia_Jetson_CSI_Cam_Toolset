@@ -18,11 +18,11 @@
 #   Included Libraries
 #-----------------------------------------------------------------------------------------------------------
 
-import cv2
 
 from os import error
 import sys
-import threading
+import subprocess
+import time
 
 #-----------------------------------------------------------------------------------------------------------
 #   Command Line Argument Parser
@@ -38,145 +38,81 @@ import threading
 #   Class Definitions
 #-----------------------------------------------------------------------------------------------------------
 
-class GStreamer_Pipeline:
+class CSI_Camera_Module:
     """
-    Object containing an entire GStreamer pipeline command and functions to modify the pipeline.
+    Class representing a CSI(Camera Serial Interface) device connected to the Jetson Nano. Contains 
+    functionality for taking pictures and videos using the device.
 
-    @param pipeline_stages:     List of pipeline stages
-    @type pipeline_stages:      List(str)
-    """
+    @param sensor_id:       CSI Port ID of the camera device
+    @type sensor_id:        int
 
-    def __init__(self, pipeline_stages = []):
-        """
-        GStreamer_Pipeline Constructor. Default arguments create an empty pipeline.
-
-        @param pipeline_stages:     List of pipeline stages
-        @type pipeline_stages:      List(str)
-        """
-        self.pipeline_stages = pipeline_stages
-
-    def get_Pipeline_Stages(self):
-        """
-        Retrieve the raw list element containing the pipeline stages.
-
-        @return pipeline_stages:    List of pipeline stages
-        @rtype pipeline_stages:     list(str)
-        """
-        return self.pipeline_stages
-
-    def append_Pipeline_Stage(self, stage):
-        """
-        Add a stage to the end of the pipeline.
-
-        @param stage:               String argument for the appended pipeline stage
-        @type stage:                str
-        """
-        self.pipeline_stages.append(stage)
-
-    def insert_Pipeline_stage(self, index, stage):
-        """
-        Add a stage to the specified index of the pipeline.
-
-        @param index:               Index to insert the stage into
-        @type index:                int
-
-        @param stage:               String argument for the appended pipeline stage
-        @type stage:                str
-        """
-        self.pipeline_stages.insert(index, stage)
-
-    def delete_Pipeline_Stage(self, index):
-        """
-        Remove the stage at the specified index from the pipeline.
-
-        @param index:               Index to remove the stage from
-        @type index:                int
-        """
-        self.pipeline_stages.pop(index)
-    
-    def generate_Pipeline_String(self):
-        """
-        Return a fully formatted pipeline string
-
-        @return pipeline_string:    Formatted pipeline string
-        @rtype pipeline_string:     str
-        """
-        #Create empty string for return value
-        pipeline_string = ""
-
-        #Iterate through stage list and insert pipeline stage sepparators
-        for i in range(len(self.pipeline_stages)):
-            pipeline_string = pipeline_string + self.pipeline_stages[i]
-
-            #Ignore sepparator on final member of list
-            if(i != len(self.pipeline_stages)):
-                pipeline_string = pipeline_string + " ! "
-        
-        #Return formatted string
-        return pipeline_string
-
-class CSI_Camera:
-    """
-    Object that controls the functionality of a CSI camera with a specified pipeline.
+    @param process:         The currently active subprocess. Starting a new subprocess will override the 
+                            current process
+    @type process:          Popen
     """
 
-    def __init__(self, pipeline = None):
+    def __init__(self, sensor_id):
         """
-        CSI_Camera Constructor. Default arguments creates an object with no pipeline loaded.
-
-        @param pipeline:        Initial loaded pipeline
-        @type pipeline:         GStreamer_Pipeline
-
-        @param running:         Value is true while pipeline is active
-        @type running:          bool
+        CSI_Camera_Module Constructor.
         """
-        try:
-            self.pipeline = None
-            self.load_Pipeline(pipeline)
-            self.running = False
-            self.video_cap = None
-        except error as error_type:
-            raise error_type
+        self.sensor_id = sensor_id
+        self.process = None
 
-    def load_Pipeline(self, pipeline):
+    def start_Frame_Capture(self, filename, res, flip):
         """
-        Load a pipeline into the camera. Will overide the current pipeline.
+        Start a subprocess that captures a single frame and outputs a JPEG file.
 
-        @param pipeline:        Pipeline to be loaded
-        @type pipeline:         GStreamer_Pipeline
+        @param filename:        The name of the output JPEG file
+        @type filename:         str
+
+        @param res:             Resolution of the image (Scale goes from 2-12)         
+        @type res:              int
+
+        @param flip:            Indicates whether the orientation of the camera should be inverted
+        @type flip:             bool
         """
-        try:
-            #Throw a TypeError if pipeline is not the correct type
-            if((pipeline != None)&(type(pipeline) != GStreamer_Pipeline)):
-                
-                raise TypeError
-            elif(pipeline == None):
-                self.pipeline = None
-            else:
-                self.pipeline = pipeline
-        except TypeError:
-            print("Error: pipeline is not of type GStreamer_Pipeline")
-            raise TypeError
-        except error as error_type:
-            raise error_type
-    
-    def start_Pipeline(self):
+
+        #Generate the command line input for the subprocess
+        orientation = 0
+        if flip != True:
+            orientation = 1
+
+        process_command = "nvgstcapture-1.0 --sensor-id=%d --image-res=%d --automate --capture-auto --start-time=1 --orientation=%d --file-name=%s.jpg" %(self.sensor_id, res, orientation, filename)
+
+        #Start the subprocess
+        self.process = subprocess.Popen(process_command, shell=True)
+
+
+
+    def start_Video_Capture(self, filename, width, height, framerate):
         """
-        Begin execution of the loaded pipeline.
+        Start a subprocess that captures a video and outputs a MP4 file.
+
+        @param filename:        The name of the output MP4 file
+        @type filename:         str
+
+        @param width:           The resolution width of the output video
+        @type width:            int
+
+        @param height:          The resolution height of the output video
+        @type height:           int
+
+        @param framerate:       The framerate of the output video
+        @type framerate:        int
+
         """
-        pass
 
-    def stop_Pipeline(self):
+        process_command = "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! 'video/x-raw(memory:NVMM),width=%d,height=%d,framerate=%d/1.format=NV12' ! nvv4l2h264enc ! h264parse ! mp4mux ! filesink location=%s.mp4 -e" %(self.sensor_id, width, height, framerate, filename)
+
+        #Start the subprocess
+        self.process = subprocess.Popen(process_command, shell=True)
+
+    def terminate_Process(self):
         """
-        End execution of the loaded pipeline.
+        Terminate the ongoing subprocess
         """
-        pass
 
-
-class Test:
-    
-
-
+        self.process.terminate()
 
 
 
@@ -186,31 +122,21 @@ class Test:
 #   Global Function Definitions
 #-----------------------------------------------------------------------------------------------------------
 
-def gstreamer():
-    return ('nvarguscamerasrc sensor-id=0 ! '
-            'video/x-raw(memory:NVMM), '
-            'width=1920, height=1080, '
-            'format=NV12, framerate=60/1 ! '
-            'nvvidconv flip-method=0 ! '
-            'video/x-raw, width=1280, height=720, format=(string)BGRx ! '
-            'videoconvert ! '
-            'video/x-raw, format=(string)BGR ! appsink')
-
 def test():
-    """
-    Test function. Determines if all the features of this toolset are working as intended.
-    """
 
-    cap = cv2.VideoCapture(gstreamer(), cv2.CAP_GSTREAMER)
+    cam1 = CSI_Camera_Module(0)
+    cam2 = CSI_Camera_Module(1)
 
-    fourcc = cv2.VideoWriter_fourcc(*"X264")
-    writer = cv2.VideoWriter("out/{}".format(name), fourcc, 30, (1280, 720), True)
-    if cap.isOpened():
-        for i in range(1200):
-            ret_val, img = cap.read()
-            writer.write(img)
-    writer.release()
-    cap.release()
+    cam1.start_Frame_Capture("frame_test_1", 3, 0)
+    cam2.start_Frame_Capture("frame_test_2", 3, 1)
+
+    cam1.start_Video_Capture("vid_test_1", 1920, 1080, 30)
+    cam2.start_Video_Capture("vid_test_2", 1920, 1080, 30)
+
+    time.sleep(10)
+
+    cam1.terminate_Process()
+    cam2.terminate_Process()
 
 #-----------------------------------------------------------------------------------------------------------
 #   Main Function Definition
