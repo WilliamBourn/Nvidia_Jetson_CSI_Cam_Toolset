@@ -19,7 +19,7 @@
 #-----------------------------------------------------------------------------------------------------------
 
 
-from os import error
+import os
 import sys
 import subprocess
 import signal
@@ -108,9 +108,8 @@ class CSI_Camera_Module:
         """
         Terminate the ongoing subprocess
         """
-        self.process.send_signal(signal.SIGUSR2)
         
-        self.process.wait()
+        os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
 
 
 
