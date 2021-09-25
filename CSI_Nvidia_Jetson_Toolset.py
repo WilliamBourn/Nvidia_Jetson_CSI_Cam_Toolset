@@ -122,15 +122,15 @@ class CSI_Camera_Module:
 def test():
 
     cam1 = CSI_Camera_Module(0)
-    #cam2 = CSI_Camera_Module(1)
+    cam2 = CSI_Camera_Module(1)
 
     cam1.start_Video_Capture("vid_test_1", 1280, 720, 30)
-    #cam2.start_Video_Capture("vid_test_2", 1920, 1080, 30)
+    cam2.start_Video_Capture("vid_test_2", 1280, 720, 30)
 
     time.sleep(10)
 
     cam1.terminate_Process()
-    #cam2.terminate_Process()
+    cam2.terminate_Process()
 
 
 #-----------------------------------------------------------------------------------------------------------
