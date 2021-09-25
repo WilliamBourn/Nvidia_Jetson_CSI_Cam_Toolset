@@ -16,7 +16,6 @@
 #------------------------------------------------------------------------------------------------------------------------------------
 
 import os               #Used in error handling & video recording(threading)
-from os import error, times
 import sys              #Used in error handling
 import subprocess       #Used in camera recording(threading)
 import signal           #Used in camera recording(threading)
@@ -128,7 +127,7 @@ class Nano_Camera_Trap:
             print("Error: %s Module Not Found. Ensure Connections Are Secure." %err.module)
             sys.exit(1)
         
-        except error as error_type:
+        except os.error as error_type:
             raise error_type
 
     def start(self):
@@ -188,7 +187,7 @@ class CSI_Module:
             if self.is_Module_Valid() == False:
                 raise ModuleNotFoundError(self.name)
 
-        except error as error_type:
+        except os.error as error_type:
             raise error_type
 
     def is_Module_Valid(self):
@@ -240,7 +239,7 @@ class CSI_Module:
         #TODO: Make this neater. Implement None state functionality
 
         #Get the process ID
-        pid = os.getpgid(self.pro.pid)
+        pid = get_pid("gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id))
 
         #Terminate process
         os.killpg(pid, signal.SIGINT)
@@ -278,6 +277,9 @@ class PIS_Module:
 #------------------------------------------------------------------------------------------------------------------------------------
 #   Global Funtion Definitions
 #------------------------------------------------------------------------------------------------------------------------------------
+
+def get_pid(name):
+    return int(subprocess.check_output(["pidof","-s",name]))
 
 def system_Check():
     pass
