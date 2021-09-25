@@ -284,7 +284,13 @@ class PIS_Module:
 #------------------------------------------------------------------------------------------------------------------------------------
 
 def get_pid(name):
-    return int(subprocess.check_output(["pidof", name]))
+    command = "pidof %s" %name
+    pro = subprocess.Popen(command, stdout=subprocess.PIPE)
+    out, err = pro.communicate()
+    print(out)
+
+    return out
+
 
 def system_Check():
     pass
