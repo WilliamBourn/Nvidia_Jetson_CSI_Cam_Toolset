@@ -207,29 +207,28 @@ class CSI_Module:
 
     def cam_test(self):
         
-        command = ""
-        command += "nvgstcapture-1.0 --sensor-id=%%d" %self.id
+        try:
 
-        #command = ""
-        #command += "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id)
-        #command += "'video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1,format=NV12' ! "
-        #command += " nvoverlaysink -e"
+            command = ""
+            command += "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id)
+            command += "'video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1,format=NV12' ! "
+            command += " nvoverlaysink -e"
 
-        self.running = True
-        self.pro = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.running = True
+            self.pro = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        out, err = self.pro.communicate("q")
+            time.sleep(1)
         
 
-        #Get the process ID
-        #pid = os.getpgid(self.pro.pid)
+            #Get the process ID
+            pid = os.getpgid(self.pro.pid)
 
-        #Terminate process
-        #os.killpg(pid, signal.SIGINT)
-        self.running = False
-
-        return out, err
-
+            #Terminate process
+            os.killpg(pid, signal.SIGINT)
+            self.running = False
+        
+        except error as error_type:
+            raise ModuleNotFoundError
 
     def start_Video_Capture(self, filename, resolution, framerate):
         """
@@ -316,17 +315,9 @@ def test():
     cam_1 = CSI_Module(0, "cam_1")
     cam_2 = CSI_Module(1, "cam_2")
 
-    out, err = cam_1.cam_test()
+    cam_1.cam_test()
+    cam_2.cam_test()
 
-    print("Cam 1")
-    print("out: %s" %out)
-    print("err: %s" %err)
-
-    out, err = cam_2.cam_test()
-
-    print("Cam 2")
-    print("out: %s" %out)
-    print("err: %s" %err)
 
 
 
