@@ -284,7 +284,7 @@ class PIS_Module:
 #------------------------------------------------------------------------------------------------------------------------------------
 
 def get_pid(name):
-    command = "pidof %s" %name
+    command = "pgrep -f '^name'"
     pro = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = pro.communicate()
     print(out)
