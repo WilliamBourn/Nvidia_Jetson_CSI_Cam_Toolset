@@ -108,7 +108,7 @@ class CSI_Camera_Module:
         Terminate the ongoing subprocess
         """
 
-        self.process.terminate()
+        self.process.kill()
 
 
 
