@@ -311,8 +311,8 @@ def system_Check():
     pass
 
 def test():
-    cam_1 = CSI_Module(0)
-    cam_2 = CSI_Module(1)
+    cam_1 = CSI_Module(0, "cam_1")
+    cam_2 = CSI_Module(1, "cam_2")
 
     out, err = cam_1.cam_test()
 
