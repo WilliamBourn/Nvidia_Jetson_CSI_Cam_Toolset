@@ -211,7 +211,7 @@ class CSI_Module:
         if self.running == True:
             self.stop_Video_Capture()
             self.running = False
-            #Might need to sleep here. Will have to test
+            time.sleep(1)
 
         #Generate process command
         command = ""
