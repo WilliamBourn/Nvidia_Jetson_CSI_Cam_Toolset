@@ -77,7 +77,7 @@ class CSI_Camera_Module:
         if flip != True:
             orientation = 1
 
-        process_command = "nvgstcapture-1.0 --sensor-id=%d --image-res=%d --automate --capture-auto --start-time=1 --orientation=%d --file-name=%s.jpg" %(self.sensor_id, res, orientation, filename)
+        process_command = "nvgstcapture-1.0 --sensor-id=%d --image-res=%d --automate --capture-auto --start-time=1 --orientation=%d --file-name=%s" %(self.sensor_id, res, orientation, filename)
 
         #Start the subprocess
         self.process = subprocess.Popen(process_command, shell=True)
@@ -125,20 +125,20 @@ class CSI_Camera_Module:
 def test():
 
     cam1 = CSI_Camera_Module(0)
-    cam2 = CSI_Camera_Module(1)
+    #cam2 = CSI_Camera_Module(1)
 
     cam1.start_Frame_Capture("frame_test_1", 3, 0)
-    cam2.start_Frame_Capture("frame_test_2", 3, 1)
+    #cam2.start_Frame_Capture("frame_test_2", 3, 1)
 
     time.sleep(10)
 
     cam1.start_Video_Capture("vid_test_1", 1920, 1080, 30)
-    cam2.start_Video_Capture("vid_test_2", 1920, 1080, 30)
+    #cam2.start_Video_Capture("vid_test_2", 1920, 1080, 30)
 
     time.sleep(10)
 
     cam1.terminate_Process()
-    cam2.terminate_Process()
+    #cam2.terminate_Process()
 
 #-----------------------------------------------------------------------------------------------------------
 #   Main Function Definition
