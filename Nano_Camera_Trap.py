@@ -198,38 +198,8 @@ class CSI_Module:
         @return valid:              Value is True if module is working
         @rtype valid:               bool
         """
-
-
-
-
         #TODO: Implement this
         return True
-
-    def cam_test(self):
-        
-        try:
-
-            command = ""
-            command += "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id)
-            command += "'video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1,format=NV12' ! "
-            command += "nvv4l2h264enc ! h264parse ! mp4mux ! "
-            command += "filesink location=test.mp4 -e"
-
-            self.running = True
-            self.pro = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-            time.sleep(1)
-        
-
-            #Get the process ID
-            pid = os.getpgid(self.pro.pid)
-
-            #Terminate process
-            os.killpg(pid, signal.SIGINT)
-            self.running = False
-        
-        except error as error_type:
-            raise ModuleNotFoundError
 
     def start_Video_Capture(self, filename, resolution, framerate):
         """
@@ -316,8 +286,18 @@ def test():
     cam_1 = CSI_Module(0, "cam_1")
     cam_2 = CSI_Module(1, "cam_2")
 
-    cam_1.cam_test()
-    cam_2.cam_test()
+    cam_1.start_Video_Capture("vid_test_1", (1280, 720), 30)
+    cam_2.start_Video_Capture("vid_test_2", (1280, 720), 30)
+
+    time.sleep(10)
+
+    cam_1.start_Video_Capture("vid_test_3", (1280, 720), 30)
+    cam_2.start_Video_Capture("vid_test_4", (1280, 720), 30)
+
+    time.sleep(10)
+
+    cam_1.stop_Video_Capture()
+    cam_2.stop_Video_Capture()
 
 
 
