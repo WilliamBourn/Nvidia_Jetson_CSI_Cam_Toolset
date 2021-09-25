@@ -109,7 +109,6 @@ class CSI_Camera_Module:
         Terminate the ongoing subprocess
         """
         self.process.send_signal(signal.SIGUSR2)
-        self.process.terminate()
 
 
 
