@@ -38,6 +38,7 @@ import time
 #   Class Definitions
 #-----------------------------------------------------------------------------------------------------------
 
+
 class CSI_Camera_Module:
     """
     Class representing a CSI(Camera Serial Interface) device connected to the Jetson Nano. Contains 
@@ -58,7 +59,7 @@ class CSI_Camera_Module:
         self.sensor_id = sensor_id
         self.process = None
 
-    def start_Frame_Capture(self, filename, res, flip):
+    def start_Frame_Capture(self, filename, res):
         """
         Start a subprocess that captures a single frame and outputs a JPEG file.
 
@@ -72,12 +73,7 @@ class CSI_Camera_Module:
         @type flip:             bool
         """
 
-        #Generate the command line input for the subprocess
-        orientation = 0
-        if flip != True:
-            orientation = 1
-
-        process_command = "nvgstcapture-1.0 --sensor-id=%d --image-res=%d --automate --capture-auto --start-time=1 --orientation=%d --file-name=%s" %(self.sensor_id, res, orientation, filename)
+        process_command = "nvgstcapture-1.0 --sensor-id=%d --image-res=%d --automate --capture-auto --start-time=1 --file-name=%s" %(self.sensor_id, res, filename)
 
         #Start the subprocess
         self.process = subprocess.Popen(process_command, shell=True)
@@ -126,11 +122,6 @@ def test():
 
     cam1 = CSI_Camera_Module(0)
     #cam2 = CSI_Camera_Module(1)
-
-    cam1.start_Frame_Capture("frame_test_1", 3, 0)
-    #cam2.start_Frame_Capture("frame_test_2", 3, 1)
-
-    time.sleep(10)
 
     cam1.start_Video_Capture("vid_test_1", 1920, 1080, 30)
     #cam2.start_Video_Capture("vid_test_2", 1920, 1080, 30)
