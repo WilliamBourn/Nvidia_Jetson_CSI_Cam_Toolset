@@ -296,7 +296,7 @@ def get_pid(name):
 
 def kill_pid(pid):
     command = "kill -2 %d" %pid
-    pro = subprocess.Popen(command)
+    pro = subprocess.Popen(command, shell=True)
 
 def system_Check():
     pass
