@@ -244,6 +244,8 @@ class CSI_Module:
         #Get the process ID
         pid = get_pid(name)
 
+        print(pid)
+
         #Terminate process
         os.killpg(pid, signal.SIGINT)
         self.running = False
