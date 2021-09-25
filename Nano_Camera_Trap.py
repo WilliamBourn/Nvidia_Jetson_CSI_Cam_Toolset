@@ -289,7 +289,7 @@ def get_pid(name):
     out, err = pro.communicate()
     print(out)
 
-    return out
+    return int(out)
 
 
 def system_Check():
