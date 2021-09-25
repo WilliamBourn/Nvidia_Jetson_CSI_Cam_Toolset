@@ -208,22 +208,24 @@ class CSI_Module:
     def cam_test(self):
         
         command = ""
-        command += "gst-launch-1.0 sensor-id=%d ! " %(self.id)
-        command += "'video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1,format=NV12' ! "
-        command += " nvoverlaysink -e"
+        command += "nvgstcapture-1.0 --sensor-id=%%d" %self.id
+
+        #command = ""
+        #command += "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id)
+        #command += "'video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1,format=NV12' ! "
+        #command += " nvoverlaysink -e"
 
         self.running = True
-        self.pro = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.pro = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        out, err = self.pro.communicate()
+        out, err = self.pro.communicate("q")
         
-        time.sleep(1)
 
         #Get the process ID
-        pid = os.getpgid(self.pro.pid)
+        #pid = os.getpgid(self.pro.pid)
 
         #Terminate process
-        os.killpg(pid, signal.SIGINT)
+        #os.killpg(pid, signal.SIGINT)
         self.running = False
 
         return out, err
