@@ -1,25 +1,23 @@
 #-----------------------------------------------------------------------------------------------------------
 #
 #   Author:     William Bourn
-#   File:       CSI_Nvidia_Jetson_Toolset.py
+#   File:       CSI_Camera.py
 #   Version:    1.00
 #
 #   Description:
-#   A library of functions for capturing footage using CSI cameras on a Nvidia Jetson Nano. Toolset was
-#   designed specifically for Pi Noir(No-Infrared) 2 CSI cameras.
+#   The CSI_Camera library contains tools and class definitions that support the implementation of video and
+#   image capture using CSI(Camera Serial Interface) devices using GStreamer pipelines. This module was 
+#   designed for use on the Nvidia_Jetson_Nano to be used with Raspberry Pi camera modules.
 #      
 #-----------------------------------------------------------------------------------------------------------
-
-#TO DO: Define common errors with custome error types
-#TO DO: Define pipeline class and functionality
-#TO DO: Define camera class and functionality
 
 #-----------------------------------------------------------------------------------------------------------
 #   Included Libraries
 #-----------------------------------------------------------------------------------------------------------
 
+#TODO: Give descriptions
 
-import os
+import os       
 import sys
 import subprocess
 import signal
@@ -29,15 +27,124 @@ import time
 #   Command Line Argument Parser
 #-----------------------------------------------------------------------------------------------------------
 
+#TODO: Add Command line arguments
 
 #-----------------------------------------------------------------------------------------------------------
 #   Constants
 #-----------------------------------------------------------------------------------------------------------
 
+#TODO: Add constants
+
+
 
 #-----------------------------------------------------------------------------------------------------------
 #   Class Definitions
 #-----------------------------------------------------------------------------------------------------------
+
+class CSI_Camera:
+    """
+    The CSI_Camera object is a software structure that corresponds to a physical CSI interfacing deviceand
+    and is used for performing video and image capture using GStreamer pipelines.
+
+    @param id:              CSI Port ID number of the device
+    @type id:               int
+
+    @param log_file:        The text file to which the output of the process is dumped
+    @type log_file:         str
+
+    @param process:         The currently active subprocess. Will be overridden in the case where a new
+                            subprocess is initiated
+    @type process:          Popen
+    """
+
+    def __init__(self, id, log_file):
+        """
+        CSI_Camera Constructor. 
+        """
+
+        self.process = None
+        self.id = id
+        self.log_file = log_file
+
+    def start_Process(self, command, shell = True):
+        """
+        Set the process command and begin the subprocess. Overide the previous process
+        """
+
+        self.terminate_Process()
+        self.process = subprocess.Popen(command, shell=shell, stdout=self.log_file)
+
+
+    def terminate_Process(self):
+        """
+        Terminate the current process. Does nothing if process is not running
+        """
+
+        if self.process == None:
+            return
+        if self.is_Process_Running() == False:
+            return
+
+        #Get the process ID
+        process_id = os.getpgid(self.process.pid)
+
+        #Terminate process
+        os.killpg(process_id, signal.SIGINT)
+
+    def is_Process_Running(self):
+        """
+        Return True if process is ongoing.
+        """
+
+        if self.process.poll() == None:
+            return True
+        else:
+            return False
+    
+    def video_Capture(self, filename, res_width, res_height, framerate, duration):
+        """
+        Record a fixed duration MP4 format video.
+        """
+
+        #Generate process command
+
+        #Select camera source
+        command = "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id) 
+        
+        #Set resolution and framerate
+        command += "'video/x-raw(memory:NVMM),width=%d,height=%d,framerate=%d/1,format=NV12' ! " %(res_width,res_height,framerate)
+
+        #Convert raw input to MP4 format
+        command += "nvv4l2h264enc ! h264parse ! mp4mux ! "
+
+        #Record video in specified output file
+        command += "filesink location=%s.mp4 -e" %(filename)
+
+        self.start_Process(command)
+        time.sleep(duration)
+        self.terminate_Process()
+
+    def continuous_Video_Capture(self, filename, res_width, res_height, framerate, duration):
+        """
+        The same, but requires explicit call to stop recording.
+        """
+
+        #Generate process command
+
+        #Select camera source
+        command = "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id) 
+        
+        #Set resolution and framerate
+        command += "'video/x-raw(memory:NVMM),width=%d,height=%d,framerate=%d/1,format=NV12' ! " %(res_width,res_height,framerate)
+
+        #Convert raw input to MP4 format
+        command += "nvv4l2h264enc ! h264parse ! mp4mux ! "
+
+        #Record video in specified output file
+        command += "filesink location=%s.mp4 -e" %(filename)
+
+        self.start_Process(command)
+
 
 
 class CSI_Camera_Module:
@@ -118,6 +225,8 @@ class CSI_Camera_Module:
 #-----------------------------------------------------------------------------------------------------------
 #   Global Function Definitions
 #-----------------------------------------------------------------------------------------------------------
+
+
 
 def test():
 
