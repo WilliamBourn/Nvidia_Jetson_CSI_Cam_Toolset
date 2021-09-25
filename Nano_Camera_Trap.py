@@ -289,15 +289,21 @@ def test():
     cam_1.start_Video_Capture("vid_test_1", (1280, 720), 30)
     cam_2.start_Video_Capture("vid_test_2", (1280, 720), 30)
 
+    print("Started recording vid 1 & 2")
+
     time.sleep(10)
 
     cam_1.start_Video_Capture("vid_test_3", (1280, 720), 30)
     cam_2.start_Video_Capture("vid_test_4", (1280, 720), 30)
 
+    print("Started recording vid 3 & 4")
+
     time.sleep(10)
 
     cam_1.stop_Video_Capture()
     cam_2.stop_Video_Capture()
+
+    print("Finished")
 
 
 
