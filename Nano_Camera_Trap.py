@@ -244,12 +244,9 @@ class CSI_Module:
         #Get the process ID
         pid = get_pid(name)
 
-        print("pid")
-        print(pid)
-
         #Terminate process
-
         kill_pid(pid)
+
         self.running = False
 
     
@@ -289,8 +286,6 @@ def get_pid(name):
     command = "pgrep -f '^%s'" %name
     pro = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = pro.communicate()
-    print("out")
-    print(out)
 
     return int(out)
 
@@ -305,15 +300,15 @@ def test():
     cam_1 = CSI_Module(0, "cam_1")
     cam_2 = CSI_Module(1, "cam_2")
 
-    cam_1.start_Video_Capture("vid_test_1", (1280, 720), 30)
-    cam_2.start_Video_Capture("vid_test_2", (1280, 720), 30)
+    cam_1.start_Video_Capture("bin/vid_test_1", (1280, 720), 30)
+    cam_2.start_Video_Capture("bin/vid_test_2", (1280, 720), 30)
 
     print("Started recording vid 1 & 2")
 
     time.sleep(10)
 
-    cam_1.start_Video_Capture("vid_test_3", (1280, 720), 30)
-    cam_2.start_Video_Capture("vid_test_4", (1280, 720), 30)
+    cam_1.start_Video_Capture("bin/vid_test_3", (1280, 720), 30)
+    cam_2.start_Video_Capture("bin/vid_test_4", (1280, 720), 30)
 
     print("Started recording vid 3 & 4")
 
