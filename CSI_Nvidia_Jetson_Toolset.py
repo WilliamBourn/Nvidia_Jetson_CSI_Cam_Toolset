@@ -102,7 +102,7 @@ class CSI_Camera_Module:
 
         """
 
-        process_command = "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! 'video/x-raw(memory:NVMM),width=%d,height=%d,framerate=%d/1.format=NV12' ! nvv4l2h264enc ! h264parse ! mp4mux ! filesink location=%s.mp4 -e" %(self.sensor_id, width, height, framerate, filename)
+        process_command = "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! 'video/x-raw(memory:NVMM),width=%d,height=%d,framerate=%d/1,format=NV12' ! nvv4l2h264enc ! h264parse ! mp4mux ! filesink location=%s.mp4 -e" %(self.sensor_id, width, height, framerate, filename)
 
         #Start the subprocess
         self.process = subprocess.Popen(process_command, shell=True)
@@ -129,6 +129,8 @@ def test():
 
     cam1.start_Frame_Capture("frame_test_1", 3, 0)
     cam2.start_Frame_Capture("frame_test_2", 3, 1)
+
+    time.sleep(10)
 
     cam1.start_Video_Capture("vid_test_1", 1920, 1080, 30)
     cam2.start_Video_Capture("vid_test_2", 1920, 1080, 30)
