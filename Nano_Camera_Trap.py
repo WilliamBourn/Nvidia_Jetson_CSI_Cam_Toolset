@@ -244,6 +244,7 @@ class CSI_Module:
         #Get the process ID
         pid = get_pid(name)
 
+        print("pid")
         print(pid)
 
         #Terminate process
@@ -287,6 +288,7 @@ def get_pid(name):
     command = "pgrep -f '^%s'" %name
     pro = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = pro.communicate()
+    print("out")
     print(out)
 
     return int(out)
