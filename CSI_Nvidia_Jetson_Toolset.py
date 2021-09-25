@@ -22,6 +22,7 @@
 from os import error
 import sys
 import subprocess
+import signal
 import time
 
 #-----------------------------------------------------------------------------------------------------------
@@ -107,8 +108,8 @@ class CSI_Camera_Module:
         """
         Terminate the ongoing subprocess
         """
-
-        self.process.kill()
+        self.process.send_signal(signal.SIGUSR2)
+        self.process.terminate()
 
 
 
