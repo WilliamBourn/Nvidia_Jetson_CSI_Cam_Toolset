@@ -238,8 +238,11 @@ class CSI_Module:
         """
         #TODO: Make this neater. Implement None state functionality
 
+
+        name = "gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id)
+        
         #Get the process ID
-        pid = get_pid("gst-launch-1.0 nvarguscamerasrc sensor-id=%d ! " %(self.id))
+        pid = get_pid(name)
 
         #Terminate process
         os.killpg(pid, signal.SIGINT)
