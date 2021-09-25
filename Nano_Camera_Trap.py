@@ -284,7 +284,7 @@ class PIS_Module:
 #------------------------------------------------------------------------------------------------------------------------------------
 
 def get_pid(name):
-    return int(subprocess.check_output(["pidof","-s",name]))
+    return int(subprocess.check_output(["pidof", name]))
 
 def system_Check():
     pass
